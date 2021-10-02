@@ -9,6 +9,16 @@ const { Navigator, Screen } = createBottomTabNavigator();
 import { Dashboard } from '../screens/Dashboard'
 import { Register } from '../screens/Register'
 
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList {
+      Listagem: string;
+      Cadastrar: string;
+      Result: string;
+    }
+  }
+}
+
 export function AppRoutes() {
   const theme = useTheme();
   return (

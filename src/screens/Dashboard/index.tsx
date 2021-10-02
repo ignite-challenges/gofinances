@@ -1,7 +1,10 @@
 import React from "react";
 
 import { HighlightCard } from "../../components/HighlightCard";
-import { TransactionCard, TransactionCardProps } from "../../components/TransactionCard";
+import { 
+  TransactionCard, 
+  TransactionCardProps 
+} from "../../components/TransactionCard";
 
 import { 
   Container,
@@ -59,7 +62,7 @@ export function Dashboard() {
       },
       date: "27/03/2020"
     }
-];
+  ];
 
   return (
     <Container>

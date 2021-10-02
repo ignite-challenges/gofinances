@@ -1,11 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { 
   Modal, 
   TouchableWithoutFeedback, 
   Keyboard, 
   Alert
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 import { useForm } from "react-hook-form";
+import uuid from "react-native-uuid";
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -30,6 +33,10 @@ interface FormData {
   amount: number;
 }
 
+type NavigationProps = {
+  navigate:(screen:string) => void;
+}
+
 const schema = Yup.object().shape({
   name: Yup.string().required('Nome é obrigatório'),
   amount: Yup
@@ -43,8 +50,12 @@ export function Register() {
   const { 
     control, 
     handleSubmit, 
+    reset,
     formState: { errors }
   } = useForm({ resolver: yupResolver(schema)});
+  const { navigate } = useNavigation<NavigationProps>();
+
+  const dataKey = '@gofinances:transactions';
 
   const [transactionType, setTransactionType] = useState('');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
@@ -62,20 +73,38 @@ export function Register() {
     setCategoryModalOpen(state => !state);
   }, []);
 
-  const handleRegister = useCallback((data: FormData) => {
+  const handleRegister = useCallback(async (form: FormData) => {
     if(!transactionType)
       return Alert.alert('Selecione o tipo da transação');
 
     if(category.key === 'category')
       return Alert.alert('Selecione a categoria');
-
     
-    console.log({ 
-      ...data, 
+    const newTransaction = ({ 
+      id: String(uuid.v4()),
+      ...form, 
       transactionType,
-      category: category.key
+      category: category.key,
+      date: new Date(),
     });
-  }, [transactionType, category.key]);
+
+    try {
+      const response = await AsyncStorage.getItem(dataKey);
+      const currentData = response ? JSON.parse(response) : [];
+      const formattedData = [ ...currentData, newTransaction ];
+      await AsyncStorage.setItem(dataKey , JSON.stringify(formattedData));
+      setTransactionType('');
+      setCategory({
+        key: 'category',
+        name: 'Categoria',
+      });
+      reset();
+      navigate('Listagem');
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Não foi possivel salvar.')
+    }
+  }, [transactionType, category.key, dataKey, reset, navigate]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
