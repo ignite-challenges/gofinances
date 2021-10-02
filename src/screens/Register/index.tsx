@@ -63,9 +63,10 @@ export function Register() {
     name: 'Categoria',
   });
 
-  const handleTransactionTypeSelect = useCallback((type: 'up' | "down") => {
-    setTransactionType(type);
-  }, []);
+  const handleTransactionTypeSelect = useCallback(
+    (type: "positive" | "negative") => {
+     setTransactionType(type);
+    }, []);
 
   const handleToggleSelectCategoryModal = useCallback(() => {
     setCategoryModalOpen(state => !state);
@@ -80,10 +81,10 @@ export function Register() {
     
     const newTransaction = ({ 
       id: String(uuid.v4()),
-      ...form, 
-      transactionType,
+      type: transactionType,
       category: category.key,
       date: new Date(),
+      ...form, 
     });
 
     try {
@@ -132,14 +133,14 @@ export function Register() {
               <TransactionTypeButton 
                 type='up'
                 title="Income"
-                isActive={transactionType === 'up'}
-                onPress={() => handleTransactionTypeSelect('up')}
+                isActive={transactionType === 'positive'}
+                onPress={() => handleTransactionTypeSelect('positive')}
               />
               <TransactionTypeButton 
                 type='down'
                 title="Outcome"
-                isActive={transactionType === 'down'}
-                onPress={() => handleTransactionTypeSelect('down')}
+                isActive={transactionType === 'negative'}
+                onPress={() => handleTransactionTypeSelect('negative')}
               />
             </TransactionTypes>
             <CategorySelectButton 
