@@ -55,8 +55,6 @@ export function Register() {
   } = useForm({ resolver: yupResolver(schema)});
   const { navigate } = useNavigation<NavigationProps>();
 
-  const dataKey = '@gofinances:transactions';
-
   const [transactionType, setTransactionType] = useState('');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   
@@ -89,6 +87,7 @@ export function Register() {
     });
 
     try {
+      const dataKey = '@gofinances:transactions';
       const response = await AsyncStorage.getItem(dataKey);
       const currentData = response ? JSON.parse(response) : [];
       const formattedData = [ ...currentData, newTransaction ];
@@ -104,7 +103,7 @@ export function Register() {
       console.log(error);
       Alert.alert('Não foi possivel salvar.')
     }
-  }, [transactionType, category.key, dataKey, reset, navigate]);
+  }, [transactionType, category.key, reset, navigate]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
