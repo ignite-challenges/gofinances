@@ -6,8 +6,19 @@ import { Platform } from 'react-native';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
-import { Dashboard } from '../screens/Dashboard'
-import { Register } from '../screens/Register'
+import { Dashboard } from '../screens/Dashboard';
+import { Register } from '../screens/Register';
+import { Resume } from '../screens/Resume';
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList {
+      Listagem: string;
+      Cadastrar: string;
+      Resumo: string;
+    }
+  }
+}
 
 export function AppRoutes() {
   const theme = useTheme();
@@ -53,7 +64,7 @@ export function AppRoutes() {
       />
       <Screen 
         name="Resumo" 
-        component={Register}
+        component={Resume}
         options={{
           tabBarIcon: (({ color, size }) => (
             <MaterialIcons 
