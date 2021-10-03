@@ -1,6 +1,9 @@
-import React, { useCallback } from 'react';
-import { Alert } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
+
+import { useTheme } from 'styled-components/native';
+import { useAuth } from '../../hooks/auth';
 
 import { SignInSocialButton } from '../../components/SignInSocialButton';
 
@@ -11,33 +14,40 @@ import {
   Title,
   SignInTitle,
   Footer,
-  FooterWrapper
+  FooterWrapper,
+  Loading
 } from './styles';
 
 import AppleSvg from '../../assets/apple.svg';
 import GoogleSvg from '../../assets/google.svg';
 import LogoSvg from '../../assets/logo.svg';
 
-import { useAuth } from '../../hooks/auth';
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const { signInWithGoogle, signInWithApple } = useAuth();
+  const theme = useTheme();
 
   const handleSignInWithGoogle = useCallback(async () => {
     try {
-      await signInWithGoogle();
+      setIsLoading(true);
+      return await signInWithGoogle();
     } catch (error) {
       console.log(error);
       Alert.alert('Não foi possivel conectar a conta Google')
+      setIsLoading(false);
     }
   }, [signInWithGoogle]);
 
   const handleSignInWithApple = useCallback(async () => {
     try {
-      await signInWithApple();
+      setIsLoading(true);
+      return await signInWithApple();
     } catch (error) {
       console.log(error);
       Alert.alert('Não foi possivel conectar a conta Apple')
+      setIsLoading(false);
     }
   }, [signInWithApple]);
 
@@ -58,18 +68,25 @@ export function SignIn() {
         </SignInTitle>
       </Header>
       <Footer>
-        <FooterWrapper>
-          <SignInSocialButton 
-            onPress={handleSignInWithGoogle}
-            svg={GoogleSvg}
-            title="Entrar com Google"
-          />
-          <SignInSocialButton 
-            onPress={handleSignInWithApple}
-            svg={AppleSvg} 
-            title="Entrar com Apple"
-          />
-        </FooterWrapper>
+        {isLoading ?
+          <Loading 
+            size='large' 
+            color={theme.colors.primary} 
+          /> 
+          :
+          <FooterWrapper>
+            <SignInSocialButton 
+              onPress={handleSignInWithGoogle}
+              svg={GoogleSvg}
+              title="Entrar com Google"
+            />
+            <SignInSocialButton 
+              onPress={handleSignInWithApple}
+              svg={AppleSvg} 
+              title="Entrar com Apple"
+            />
+          </FooterWrapper>
+        }
       </Footer>
     </Container>
   );

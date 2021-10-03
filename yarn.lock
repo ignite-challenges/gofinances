@@ -1613,6 +1613,11 @@
     sudo-prompt "^9.0.0"
     wcwidth "^1.0.1"
 
+"@react-native-masked-view/masked-view@^0.2.6":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@react-native-masked-view/masked-view/-/masked-view-0.2.6.tgz#b26c52d5db3ad0926b13deea79c69620966a9221"
+  integrity sha512-303CxmetUmgiX9NSUxatZkNh9qTYYdiM8xkGf9I3Uj20U3eGY3M78ljeNQ4UVCJA+FNGS5nC1dtS9GjIqvB4dg==
+
 "@react-navigation/bottom-tabs@^6.0.7":
   version "6.0.7"
   resolved "https://registry.yarnpkg.com/@react-navigation/bottom-tabs/-/bottom-tabs-6.0.7.tgz#3a0772f57b588d10853d05407fc3c0c48c6bb8ba"
@@ -1653,6 +1658,15 @@
   integrity sha512-5ctB49rmtTRQuTSBVgqMsEzBUjPP2ByUzBjNivA7jmvk+PDCl4oZsiR8KAm/twhxe215GYThfi2vUWXKAg6EEQ==
   dependencies:
     nanoid "^3.1.23"
+
+"@react-navigation/stack@^6.0.9":
+  version "6.0.9"
+  resolved "https://registry.yarnpkg.com/@react-navigation/stack/-/stack-6.0.9.tgz#a4c38df732d6dfefc39d8c80411aa066fcaeb358"
+  integrity sha512-LV9MlxqOH6+wgU7LxhaTRSY+WTuzNa2NnOCji9nyAA4Xohp9tpuLhYJRYdNRWXBcfseBqz1o4L0LAxRMv+CXYQ==
+  dependencies:
+    "@react-navigation/elements" "^1.1.2"
+    color "^3.1.3"
+    warn-once "^0.1.0"
 
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"

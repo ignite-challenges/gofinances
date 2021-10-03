@@ -45,3 +45,7 @@ export const FooterWrapper = styled.View`
   padding: 0px 32px;
   justify-content: space-between;
 `;
+
+export const Loading = styled.ActivityIndicator`
+  margin-top: ${RFPercentage(10)}px;
+`;

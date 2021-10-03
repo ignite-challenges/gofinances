@@ -1,4 +1,11 @@
-import React, { createContext, ReactNode, useCallback, useContext, useState } from "react";
+import React, { 
+  createContext, 
+  ReactNode, 
+  useCallback, 
+  useContext, 
+  useState,
+  useEffect
+} from "react";
 import * as AuthSession from 'expo-auth-session';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,8 +23,10 @@ interface User {
 
 interface IAuthContextData {
   user: User;
+  userStorageLoading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 interface AuthorizationResponse {
@@ -30,7 +39,10 @@ interface AuthorizationResponse {
 const AuthContext = createContext<IAuthContextData>({} as IAuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
+  const userStorageKey = '@gofinances:user';
+
   const [user, setUser] = useState<User>({} as User);
+  const [userStorageLoading, setUserStorageLoading] = useState(true);
 
   const signInWithGoogle = useCallback(async () => {
     try {
@@ -51,13 +63,13 @@ function AuthProvider({ children }: AuthProviderProps) {
         };
 
         setUser(userLogged);
-        await AsyncStorage.setItem('@gofinances:user', JSON.stringify(userLogged));
+        await AsyncStorage.setItem(userStorageKey, JSON.stringify(userLogged));
       }
     } catch (error) {
       console.log(error);
       throw new Error(error);
     }
-  }, []);
+  }, [userStorageKey]);
 
   const signInWithApple = useCallback(async () => {
     try {
@@ -69,24 +81,52 @@ function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if(credential) {
+        const name = credential.fullName!.givenName!;
         const userLogged = {
+          name,
           id: String(credential.user),
-          name: credential.fullName!.givenName!,
           email: credential.email!,
+          photo: `https://ui-avatars.com/api/?name=${name}&length=1`
         }
 
         setUser(userLogged);
-        await AsyncStorage.setItem('@gofinances:user', JSON.stringify(userLogged));
+        await AsyncStorage.setItem(userStorageKey, JSON.stringify(userLogged));
       }
       
     } catch (error) {
       console.log(error);
       throw new Error(error);
     }
-  }, []);
+  }, [userStorageKey]);
+
+  const signOut = useCallback(async () => {
+    setUser({} as User);
+    await AsyncStorage.removeItem(userStorageKey);
+  }, [userStorageKey]);
+
+  const loadUserStorageData = useCallback(async () => {
+    const userStorage = await AsyncStorage.getItem(userStorageKey);
+    if(userStorage) {
+      const userLogged = JSON.parse(userStorage) as User;
+      setUser(userLogged)
+    }
+    setUserStorageLoading(false);
+  }, [userStorageKey]);
+
+  useEffect(() => {
+    loadUserStorageData();
+  }, [loadUserStorageData]);
 
   return (
-    <AuthContext.Provider value={{ user, signInWithGoogle, signInWithApple }}>
+    <AuthContext.Provider 
+      value={{ 
+        userStorageLoading,
+        user, 
+        signInWithGoogle, 
+        signInWithApple,
+        signOut
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

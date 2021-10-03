@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert, ActivityIndicator } from "react-native";
+
 import { useIsFocused } from "@react-navigation/native";
 import { useTheme } from 'styled-components/native';
+import { useAuth } from "../../hooks/auth";
 
 import { HighlightCard } from "../../components/HighlightCard";
 import { 
@@ -46,6 +48,7 @@ interface HighlightData {
 export function Dashboard() {
   const theme = useTheme();
   const isFocused = useIsFocused()
+  const { signOut, user } = useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<DataListProps[]>([]);
@@ -175,13 +178,13 @@ export function Dashboard() {
           <Header>
             <UserWrapper>
               <UserInfo>
-                <Photo source={{ uri: 'https://avatars.githubusercontent.com/u/37402298?s=400&u=f6aa0e04f01bfe58f6e0e7acfc32b2735f8821fa&v=4'}} />
+                <Photo source={{ uri: user.photo }} />
                 <User>
                   <UserGreeting>Olá,</UserGreeting>
-                  <UserName>Tiago</UserName>
+                  <UserName>{user.name}</UserName>
                 </User>
               </UserInfo>
-              <LogoutButton>
+              <LogoutButton onPress={signOut}>
                 <Icon name="power" />
               </LogoutButton>
             </UserWrapper>
