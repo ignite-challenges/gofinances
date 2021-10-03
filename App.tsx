@@ -2,9 +2,9 @@ import 'intl';
 import 'intl/locale-data/jsonp/pt-BR';
 
 import React from 'react';
+import AppLoading from "expo-app-loading";
 import { StatusBar } from 'react-native';
 import { ThemeProvider } from 'styled-components';
-import AppLoading from "expo-app-loading";
 import { NavigationContainer } from "@react-navigation/native";
 
 import { 
@@ -13,6 +13,8 @@ import {
   Poppins_500Medium, 
   Poppins_700Bold 
 } from "@expo-google-fonts/poppins";
+
+import { AuthProvider } from "./src/hooks/auth";
 
 import theme from './src/global/styles/theme'
 
@@ -34,7 +36,9 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <NavigationContainer>
         <StatusBar barStyle="light-content" />
-        <SignIn />
+        <AuthProvider>
+          <SignIn />
+        </AuthProvider>
       </NavigationContainer>
     </ThemeProvider>
   )
