@@ -6,6 +6,9 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { useTheme } from "styled-components/native";
 import { addMonths, subMonths, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ActivityIndicator } from 'react-native';
+
+import { useAuth } from '../../hooks/auth';
 
 import { HistoryCard } from '../../components/HistoryCard';
 import { TransactionCardProps } from '../../components/TransactionCard';
@@ -24,7 +27,6 @@ import {
 } from './styles';
 
 import { categories } from '../../utils/categories';
-import { ActivityIndicator } from 'react-native';
 
 interface CategoryData {
   name: string,
@@ -38,6 +40,7 @@ interface CategoryData {
 export function Resume() {
   const theme = useTheme();
   const isFocused = useIsFocused();
+  const { user } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -54,7 +57,7 @@ export function Resume() {
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    const dataKey = '@gofinances:transactions';
+    const dataKey = `@gofinances:transactions_user${user.id}`;
     const response = await AsyncStorage.getItem(dataKey);
     const transactions = response ? JSON.parse(response) : [];
 
@@ -101,7 +104,7 @@ export function Resume() {
 
     setTotalByCategories(totalByCategory);
     setIsLoading(false);
-  }, [selectedDate]);
+  }, [selectedDate, user.id]);
 
   useEffect(() => {
     loadData();

@@ -27,6 +27,7 @@ import {
   Fields,
   TransactionTypes
 } from './styles';
+import { useAuth } from '../../hooks/auth';
 
 interface FormData {
   name: string;
@@ -54,6 +55,7 @@ export function Register() {
     formState: { errors }
   } = useForm({ resolver: yupResolver(schema)});
   const { navigate } = useNavigation<NavigationProps>();
+  const { user } = useAuth();
 
   const [transactionType, setTransactionType] = useState('');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
@@ -88,7 +90,7 @@ export function Register() {
     });
 
     try {
-      const dataKey = '@gofinances:transactions';
+      const dataKey = `@gofinances:transactions_user${user.id}`;
       const response = await AsyncStorage.getItem(dataKey);
       const currentData = response ? JSON.parse(response) : [];
       const formattedData = [ ...currentData, newTransaction ];
@@ -104,7 +106,7 @@ export function Register() {
       console.log(error);
       Alert.alert('Não foi possivel salvar.')
     }
-  }, [transactionType, category.key, reset, navigate]);
+  }, [transactionType, category.key, reset, navigate, user.id]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
