@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert, ActivityIndicator } from "react-native";
+
 import { useIsFocused } from "@react-navigation/native";
 import { useTheme } from 'styled-components/native';
+import { useAuth } from "../../hooks/auth";
 
 import { HighlightCard } from "../../components/HighlightCard";
 import { 
@@ -46,6 +48,7 @@ interface HighlightData {
 export function Dashboard() {
   const theme = useTheme();
   const isFocused = useIsFocused()
+  const { signOut, user } = useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<DataListProps[]>([]);
@@ -55,14 +58,21 @@ export function Dashboard() {
 
   const getLastTransactionDate = useCallback(
     (collection: DataListProps[], type: 'positive' | 'negative') => {
+    const collectionFilttered = collection
+      .filter((transaction) => transaction.type === type)
+
+    if(collectionFilttered.length === 0){
+      return 0;
+    }
+
     const lastTransactionDate = new Date(
       Math.max.apply(Math, 
-        collection
-          .filter((transaction) => transaction.type === type)
+        collectionFilttered
           .map((transaction) => new Date(transaction.date).getTime())
       )
     );
     
+
     return `${lastTransactionDate.toLocaleString('pt-BR', {
         day: '2-digit',
       })} de ${lastTransactionDate.toLocaleString('pt-BR', { month: 'long' })}`;
@@ -72,7 +82,7 @@ export function Dashboard() {
   const loadTransactions = useCallback(async () => {
     try {
       setIsLoading(true)
-      const dataKey = '@gofinances:transactions';
+      const dataKey = `@gofinances:transactions_user${user.id}`;
       const response = await AsyncStorage.getItem(dataKey);
       const transactions = response ? JSON.parse(response) : [];
 
@@ -121,7 +131,9 @@ export function Dashboard() {
         transactions, 'negative'
       );
 
-      const totalIntervalTrasactions = `01 a ${lastTransactionExpensive}`;
+      const totalIntervalTrasactions = lastTransactionExpensive !== 0 
+        ? `01 a ${lastTransactionExpensive}` 
+        : 'Não há transações';
 
       const total = entriesTotal - expensiveTotal;
 
@@ -132,7 +144,9 @@ export function Dashboard() {
               style: 'currency',
               currency: 'BRL'
             }),
-            lastTransaction: `Última entrada dia ${lastTransactionEntrie}`
+            lastTransaction: lastTransactionEntrie !== 0 
+              ? `Última entrada dia ${lastTransactionEntrie}`
+              : 'Não há transaçoes'
         },
         expensive:{ 
           amount: expensiveTotal
@@ -140,7 +154,9 @@ export function Dashboard() {
               style: 'currency',
               currency: 'BRL'
             }),
-            lastTransaction: `Última saída dia ${lastTransactionExpensive}`
+            lastTransaction: lastTransactionExpensive !== 0 
+              ? `Última saída dia ${lastTransactionExpensive}` 
+              : 'Não há transaçoes'
         },
         total: {
           amount: total
@@ -158,7 +174,7 @@ export function Dashboard() {
       console.log(error);
       Alert.alert('Não foi possivel carregar as transações.');
     }
-  }, [getLastTransactionDate]);
+  }, [getLastTransactionDate, user.id]);
 
   useEffect(() =>{ 
     loadTransactions();
@@ -175,13 +191,13 @@ export function Dashboard() {
           <Header>
             <UserWrapper>
               <UserInfo>
-                <Photo source={{ uri: 'https://avatars.githubusercontent.com/u/37402298?s=400&u=f6aa0e04f01bfe58f6e0e7acfc32b2735f8821fa&v=4'}} />
+                <Photo source={{ uri: user.photo }} />
                 <User>
                   <UserGreeting>Olá,</UserGreeting>
-                  <UserName>Tiago</UserName>
+                  <UserName>{user.name}</UserName>
                 </User>
               </UserInfo>
-              <LogoutButton>
+              <LogoutButton onPress={signOut}>
                 <Icon name="power" />
               </LogoutButton>
             </UserWrapper>
